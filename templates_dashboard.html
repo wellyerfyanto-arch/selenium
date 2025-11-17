@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Premium Proxy Bot</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .config-panel {
+            background: #f8f9fa;
+            padding: 25px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .config-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .config-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+            font-size: 14px;
+        }
+
+        .config-group select, .config-group input, .config-group textarea {
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .config-group select:focus, .config-group input:focus, .config-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .config-group textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .target-urls {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #2196f3;
+        }
+
+        .target-urls h4 {
+            margin-bottom: 15px;
+            color: #1976d2;
+        }
+
+        .url-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .url-input-group input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+        }
+
+        .url-list {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .url-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .url-item:last-child {
+            border-bottom: none;
+        }
+
+        .remove-url {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 2px 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .proxy-info {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #ffc107;
+        }
+
+        .proxy-info h4 {
+            margin-bottom: 10px;
+            color: #856404;
+        }
+
+        .proxy-format {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+
+        .controls {
+            padding: 25px;
+            text-align: center;
+            background: #e9ecef;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            margin: 0 12px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 180px;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, #dc3545, #e83e8c);
+            color: white;
+        }
+
+        .btn-config {
+            background: linear-gradient(135deg, #6c757d, #adb5bd);
+            color: white;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #17a2b8, #6f42c1);
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stats-overview {
+            padding: 30px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #3498db;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .status-running { 
+            color: #28a745;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-stopped { 
+            color: #dc3545;
+            background: linear-gradient(135deg, #dc3545, #e83e8c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tabs-container {
+            padding: 30px;
+        }
+
+        .tabs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 25px;
+        }
+
+        .tab-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .tab-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .tab-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab-id {
+            font-weight: bold;
+            color: #495057;
+            font-size: 16px;
+        }
+
+        .tab-mode {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .mode-vpn { background: #d4edda; color: #155724; }
+        .mode-premium_proxy { background: #d1ecf1; color: #0c5460; }
+        .mode-free_proxy { background: #fff3cd; color: #856404; }
+        .mode-direct { background: #f8d7da; color: #721c24; }
+
+        .tab-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tab-stat {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .tab-stat .label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .tab-stat .value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .tab-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            word-break: break-all;
+            margin-bottom: 10px;
+        }
+
+        .tab-info strong {
+            color: #495057;
+        }
+
+        .log-container {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 25px;
+            font-family: 'Courier New', monospace;
+            height: 350px;
+            overflow-y: auto;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .log-entry {
+            margin: 8px 0;
+            font-size: 13px;
+            line-height: 1.5;
+            padding: 5px 0;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .tabs-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                margin: 8px;
+                width: 90%;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+
+        .premium-badge {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .url-count {
+            background: #17a2b8;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🤖 Premium Proxy Bot</h1>
+            <p>Multi-tab browsing dengan Premium Proxy & Custom Target URLs</p>
+        </div>
+
+        <!-- Configuration Panel -->
+        <div class="config-panel">
+            <h3>⚙️ Bot Configuration</h3>
+            <div class="config-grid">
+                <div class="config-group">
+                    <label>Connection Mode:</label>
+                    <select id="modeSelect">
+                        <option value="premium_proxy">Premium Proxy</option>
+                        <option value="free_proxy">Free Proxy</option>
+                        <option value="vpn">VPN Extension</option>
+                        <option value="direct">Direct Connection</option>
+                    </select>
+                </div>
+                
+                <div class="config-group">
+                    <label>Number of Tabs:</label>
+                    <input type="number" id="numTabs" min="1" max="10" value="3">
+                </div>
+                
+                <div class="config-group">
+                    <label>User Agent Rotation:</label>
+                    <select id="uaRotation">
+                        <option value="true">Enabled</option>
+                        <option value="false">Disabled</option>
+                    </select>
+                </div>
+                
+                <div class="config-group">
+                    <label>Auto Rotate Config:</label>
+                    <select id="autoRotate">
+                        <option value="true">Enabled</option>
+                        <option value="false">Disabled</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Target URLs Input -->
+            <div class="target-urls">
+                <h4>
+                    🎯 Target Websites 
+                    <span class="url-count" id="urlCount">0 URLs</span>
+                </h4>
+                <p>Masukkan website target yang akan dikunjungi bot:</p>
+                <div class="url-input-group">
+                    <input type="text" id="newUrl" placeholder="https://example.com" style="flex: 1;">
+                    <button class="btn btn-add" onclick="addUrl()">➕ Add URL</button>
+                </div>
+                <div class="url-list" id="urlList">
+                    <div style="color: #6c757d; text-align: center; padding: 20px;">
+                        No URLs added yet. Add some websites to start.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Proxy Configuration -->
+            <div class="proxy-info">
+                <h4>🔑 Custom Proxy Configuration</h4>
+                <p>Masukkan custom proxy Anda (opsional):</p>
+                <div class="proxy-format">
+                    Format: http://username:password@proxy-host:port<br>
+                    Atau: host:port:username:password<br>
+                    Satu proxy per baris
+                </div>
+                <div class="config-group">
+                    <label>Custom Proxies:</label>
+                    <textarea id="customProxies" placeholder="http://user:pass@proxy1.com:8080
+http://user:pass@proxy2.com:8080"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn btn-start" onclick="startBot()">🚀 Start Premium Bot</button>
+            <button class="btn btn-stop" onclick="stopBot()">🛑 Stop Bot</button>
+            <button class="btn btn-config" onclick="updateConfig()">⚙️ Update Config</button>
+        </div>
+
+        <!-- Statistics Overview -->
+        <div class="stats-overview">
+            <h3>📊 Overview Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Status</h3>
+                    <div class="stat-value status-stopped" id="overviewStatus">Stopped</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Active Tabs</h3>
+                    <div class="stat-value" id="activeTabs">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Pages</h3>
+                    <div class="stat-value" id="totalPages">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Ads Closed</h3>
+                    <div class="stat-value" id="totalAds">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Connection Mode</h3>
+                    <div class="stat-value" id="connectionMode">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Target URLs</h3>
+                    <div class="stat-value" id="targetUrlsCount">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Display -->
+        <div class="tabs-container">
+            <h3>📑 Active Tabs & Proxy Info</h3>
+            <div class="tabs-grid" id="tabsGrid">
+                <div class="tab-card">
+                    <div class="tab-header">
+                        <span class="tab-id">No active tabs</span>
+                    </div>
+                    <div class="tab-info">
+                        Configure target websites and start the bot to see active tabs...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs -->
+        <div class="log-container" id="logContainer">
+            <div class="log-entry">>> Premium Proxy Bot initialized. Add target websites and configure settings.</div>
+        </div>
+    </div>
+
+    <script>
+        let updateInterval;
+        let targetUrls = [];
+
+        // Get current configuration from UI
+        function getConfig() {
+            return {
+                mode: document.getElementById('modeSelect').value,
+                num_tabs: parseInt(document.getElementById('numTabs').value),
+                random_user_agent: document.getElementById('uaRotation').value === 'true',
+                auto_rotate: document.getElementById('autoRotate').value === 'true',
+                custom_proxies_text: document.getElementById('customProxies').value
+            };
+        }
+
+        // Add URL to target list
+        function addUrl() {
+            const urlInput = document.getElementById('newUrl');
+            const url = urlInput.value.trim();
+            
+            if (url) {
+                if (!url.startsWith('http')) {
+                    alert('URL harus dimulai dengan http:// atau https://');
+                    return;
+                }
+                
+                if (!targetUrls.includes(url)) {
+                    targetUrls.push(url);
+                    updateUrlList();
+                    urlInput.value = '';
+                    addLog(`✅ Added target URL: ${url}`);
+                } else {
+                    alert('URL sudah ada dalam daftar');
+                }
+            }
+        }
+
+        // Remove URL from target list
+        function removeUrl(index) {
+            const removedUrl = targetUrls.splice(index, 1)[0];
+            updateUrlList();
+            addLog(`🗑️ Removed target URL: ${removedUrl}`);
+        }
+
+        // Update URL list display
+        function updateUrlList() {
+            const urlList = document.getElementById('urlList');
+            const urlCount = document.getElementById('urlCount');
+            
+            urlCount.textContent = `${targetUrls.length} URLs`;
+            document.getElementById('targetUrlsCount').textContent = targetUrls.length;
+            
+            if (targetUrls.length === 0) {
+                urlList.innerHTML = '<div style="color: #6c757d; text-align: center; padding: 20px;">No URLs added yet. Add some websites to start.</div>';
+                return;
+            }
+            
+            urlList.innerHTML = '';
+            targetUrls.forEach((url, index) => {
+                const urlItem = document.createElement('div');
+                urlItem.className = 'url-item';
+                urlItem.innerHTML = `
+                    <span style="font-size: 12px;">${url}</span>
+                    <button class="remove-url" onclick="removeUrl(${index})">×</button>
+                `;
+                urlList.appendChild(urlItem);
+            });
+        }
+
+        // Start bot with current configuration
+        async function startBot() {
+            if (targetUrls.length === 0) {
+                alert('Please add at least one target URL before starting the bot');
+                return;
+            }
+            
+            const config = getConfig();
+            
+            try {
+                const response = await fetch('/api/control/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        config: config,
+                        target_urls: targetUrls
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'error') {
+                    addLog(`❌ Error: ${data.message}`);
+                    alert(data.message);
+                    return;
+                }
+                
+                addLog(`🚀 Bot started: ${data.status} - Mode: ${config.mode}, Tabs: ${config.num_tabs}`);
+                addLog(`🎯 Target URLs: ${targetUrls.length} websites`);
+                
+                if (config.mode === 'premium_proxy') {
+                    addLog(`🔑 Using premium proxy authentication`);
+                }
+                
+                // Start auto-update
+                if (updateInterval) clearInterval(updateInterval);
+                updateInterval = setInterval(updateStats, 2000);
+                
+            } catch (error) {
+                addLog(`❌ Error starting bot: ${error.message}`);
+            }
+        }
+
+        // Stop bot
+        async function stopBot() {
+            try {
+                const response = await fetch('/api/control/stop');
+                const data = await response.json();
+                addLog(`🛑 Bot stopped: ${data.status}`);
+                
+                if (updateInterval) {
+                    clearInterval(updateInterval);
+                    updateInterval = null;
+                }
+                
+                updateStats(); // Final update
+                
+            } catch (error) {
+                addLog(`❌ Error stopping bot: ${error.message}`);
+            }
+        }
+
+        // Update configuration
+        async function updateConfig() {
+            const config = getConfig();
+            
+            try {
+                const response = await fetch('/api/config/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ config })
+                });
+                
+                const data = await response.json();
+                addLog(`⚙️ Configuration updated: ${data.status}`);
+                
+            } catch (error) {
+                addLog(`❌ Error updating config: ${error.message}`);
+            }
+        }
+
+        // Update statistics
+        async function updateStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                
+                // Update overview
+                document.getElementById('overviewStatus').textContent = data.status || 'Stopped';
+                document.getElementById('overviewStatus').className = `stat-value ${data.status === 'Running' ? 'status-running' : 'status-stopped'}`;
+                document.getElementById('activeTabs').textContent = data.active_tabs || 0;
+                document.getElementById('totalPages').textContent = data.total_pages_visited || 0;
+                document.getElementById('totalAds').textContent = data.total_ads_closed || 0;
+                document.getElementById('connectionMode').textContent = data.mode || '-';
+                document.getElementById('targetUrlsCount').textContent = data.target_urls ? data.target_urls.length : 0;
+                
+                // Update tabs display
+                updateTabsDisplay(data.tabs || {});
+                
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
+        }
+
+        // Update tabs display with proxy info
+        function updateTabsDisplay(tabs) {
+            const tabsGrid = document.getElementById('tabsGrid');
+            
+            if (Object.keys(tabs).length === 0) {
+                tabsGrid.innerHTML = `
+                    <div class="tab-card">
+                        <div class="tab-header">
+                            <span class="tab-id">No active tabs</span>
+                        </div>
+                        <div class="tab-info">
+                            Configure target websites and start the bot to see active tabs...
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            tabsGrid.innerHTML = '';
+            
+            Object.entries(tabs).forEach(([tabId, tab]) => {
+                const modeClass = `mode-${tab.use_premium_proxy ? 'premium_proxy' : (tab.use_vpn ? 'vpn' : (tab.proxy_provider !== 'None' ? 'free_proxy' : 'direct'))}`;
+                const modeText = tab.use_premium_proxy ? 'Premium Proxy' : (tab.use_vpn ? 'VPN' : (tab.proxy_provider !== 'None' ? 'Free Proxy' : 'Direct'));
+                
+                const tabCard = document.createElement('div');
+                tabCard.className = 'tab-card';
+                tabCard.innerHTML = `
+                    <div class="tab-header">
+                        <span class="tab-id">Tab ${tabId.slice(-8)}</span>
+                        <span class="tab-mode ${modeClass}">
+                            ${modeText}
+                            ${tab.use_premium_proxy ? '<span class="premium-badge">PREMIUM</span>' : ''}
+                        </span>
+                    </div>
+                    
+                    <div class="tab-stats">
+                        <div class="tab-stat">
+                            <div class="label">Pages</div>
+                            <div class="value">${tab.pages_visited || 0}</div>
+                        </div>
+                        <div class="tab-stat">
+                            <div class="label">Ads Closed</div>
+                            <div class="value">${tab.ads_closed || 0}</div>
+                        </div>
+                        <div class="tab-stat">
+                            <div class="label">Status</div>
+                            <div class="value">${tab.status || 'Unknown'}</div>
+                        </div>
+                        <div class="tab-stat">
+                            <div class="label">Start Time</div>
+                            <div class="value">${tab.start_time ? tab.start_time.split(' ')[1] : '-'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-info">
+                        <strong>User Agent:</strong><br>
+                        <span style="font-size: 11px;">${tab.user_agent ? tab.user_agent.substring(0, 50) + '...' : 'Not set'}</span>
+                    </div>
+                    
+                    ${tab.proxy_provider !== 'None' ? `
+                    <div class="tab-info">
+                        <strong>Proxy Provider:</strong> ${tab.proxy_provider}
+                        ${tab.proxy_country !== 'None' ? ` | <strong>Country:</strong> ${tab.proxy_country}` : ''}
+                    </div>
+                    ` : ''}
+                    
+                    ${tab.current_url ? `
+                    <div class="tab-info">
+                        <strong>Current URL:</strong><br>
+                        <span style="font-size: 11px;">${tab.current_url}</span>
+                    </div>
+                    ` : ''}
+                `;
+                
+                tabsGrid.appendChild(tabCard);
+            });
+        }
+
+        // Add log entry
+        function addLog(message) {
+            const logContainer = document.getElementById('logContainer');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Handle Enter key in URL input
+        document.getElementById('newUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addUrl();
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            addLog('🚀 Premium Proxy Bot initialized');
+            updateStats(); // Initial stats update
+            updateUrlList(); // Initial URL list
+            
+            // Set up periodic updates when bot is running
+            setInterval(async () => {
+                const statusEl = document.getElementById('overviewStatus');
+                if (statusEl.textContent === 'Running') {
+                    await updateStats();
+                }
+            }, 3000);
+        });
+
+        // Handle page visibility
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                updateStats(); // Refresh when tab becomes visible
+            }
+        });
+    </script>
+</body>
+</html>
