@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: selenium-bot
+    env: python
+    plan: free
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      chmod +x chrome_install.sh
+      ./chrome_install.sh
+    startCommand: python bot.py
+    envVars:
+      - key: RENDER
+        value: true
+      - key: FLASK_ENV
+        value: production
